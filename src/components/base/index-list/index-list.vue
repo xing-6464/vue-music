@@ -68,8 +68,20 @@ const props = defineProps({
   }
 })
 
-const { groupRef, onScroll, currentIndex, fixedTitle, fixedStyle } = useFixed(props)
-const { shortcutList, onShortcutTouchStart, scrollRef, onShotcutTouchMove } = useShortcut(props, groupRef)
+const {
+  groupRef,
+  onScroll,
+  currentIndex,
+  fixedTitle,
+  fixedStyle
+} = useFixed(props)
+
+const {
+  shortcutList,
+  onShortcutTouchStart,
+  scrollRef,
+  onShotcutTouchMove
+} = useShortcut(props, groupRef)
 
 </script>
 
