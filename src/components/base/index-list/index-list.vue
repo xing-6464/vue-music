@@ -34,7 +34,7 @@
   <div
     class="shortcut"
     @touchstart.stop.prevent="onShortcutTouchStart"
-    @touchmove.stop.prevent
+    @touchmove.stop.prevent="onShotcutTouchMove"
     @touchend.stop.prevent
   >
     <ul>
@@ -69,7 +69,7 @@ const props = defineProps({
 })
 
 const { groupRef, onScroll, currentIndex, fixedTitle, fixedStyle } = useFixed(props)
-const { shortcutList, onShortcutTouchStart, scrollRef } = useShortcut(props, groupRef)
+const { shortcutList, onShortcutTouchStart, scrollRef, onShotcutTouchMove } = useShortcut(props, groupRef)
 
 </script>
 

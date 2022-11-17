@@ -1,6 +1,7 @@
 import { computed, ref } from 'vue'
 
 export default function useShortcut (props, groupRef) {
+  const ANCHOR_HEIGHT = 18
   const scrollRef = ref(null)
 
   const shortcutList = computed(() => {
@@ -9,9 +10,27 @@ export default function useShortcut (props, groupRef) {
     })
   })
 
+  const touch = {}
+
   const onShortcutTouchStart = (e) => {
     const anchorIndex = parseInt(e.target.dataset.index)
-    const targetEl = groupRef.value.children[anchorIndex]
+    touch.y1 = e.touches[0].pageY
+    touch.anchorIndex = anchorIndex
+
+    scrollTo(anchorIndex)
+  }
+
+  const onShotcutTouchMove = (e) => {
+    touch.y2 = e.touches[0].pageY
+    const delta = (touch.y2 - touch.y1) / ANCHOR_HEIGHT | 0
+    const anchorIndex = touch.anchorIndex + delta
+
+    scrollTo(anchorIndex)
+  }
+
+  function scrollTo (index) {
+    index = Math.max(0, Math.min(shortcutList.value.length - 1, index))
+    const targetEl = groupRef.value.children[index]
     const scroll = scrollRef.value.scroll
     scroll.scrollToElement(targetEl, 0)
   }
@@ -19,6 +38,7 @@ export default function useShortcut (props, groupRef) {
   return {
     shortcutList,
     onShortcutTouchStart,
-    scrollRef
+    scrollRef,
+    onShotcutTouchMove
   }
 }
