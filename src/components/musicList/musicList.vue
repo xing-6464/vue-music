@@ -2,6 +2,7 @@
   <div class="music-list">
     <div
       class="back"
+      @click="goBack"
     >
       <i class="icon-back"></i>
     </div>
@@ -9,6 +10,7 @@
     <div
       class="bg-image"
       :style="bgImageStyle"
+      ref="baImage"
     >
       <div
         class="filter"
@@ -17,6 +19,10 @@
     </div>
     <scroll
       class="list"
+      :style="scrollStyle"
+      v-loading="loading"
+      :probe-type="3"
+      @scroll="onScroll"
     >
       <div class="song-list-wrapper">
         <song-list
@@ -30,6 +36,8 @@
 <script>
 import SongList from '@/components/base/song-list/song-list'
 import Scroll from '@/components/base/scroll/scroll.vue'
+
+const RESERVED_HEIGHT = 40
 
 export default {
   name: 'musicList',
@@ -45,14 +53,61 @@ export default {
       }
     },
     title: String,
-    pic: String
+    pic: String,
+    loading: Boolean
+  },
+  data () {
+    return {
+      imageHeight: 0,
+      scrollY: 0,
+      maxTranslateY: 0
+    }
   },
   computed: {
     bgImageStyle () {
+      let zIndex = 0
+      let height = 0
+      let translateZ = 0
+      let paddingTop = '70%'
+      let scale = 1
+      const scrollY = this.scrollY
+
+      if (scrollY > this.maxTranslateY) {
+        zIndex = 10
+        paddingTop = 0
+        height = `${RESERVED_HEIGHT}px`
+        translateZ = 1
+      }
+
+      if (scrollY < 0) {
+        scale = 1 + Math.abs(scrollY / this.imageHeight)
+      }
+
       return {
-        backgroundImage: `url(${this.pic})`
+        backgroundImage: `url(${this.pic})`,
+        zIndex,
+        paddingTop,
+        height,
+        transform: `scale(${scale})translateZ(${translateZ}px)`
+      }
+    },
+    scrollStyle () {
+      return {
+        top: `${this.imageHeight}px`
       }
     }
+  },
+  methods: {
+    goBack () {
+      this.$router.back()
+    },
+    onScroll (pos) {
+      this.scrollY = -pos.y
+    }
+  },
+  mounted () {
+    this.imageHeight = this.$refs.baImage.clientHeight
+    this.maxTranslateY = this.imageHeight - RESERVED_HEIGHT
   }
 }
 </script>
@@ -92,8 +147,6 @@ export default {
       width: 100%;
       transform-origin: top;
       background-size: cover;
-      padding-top: 70%;
-      height: 0;
       .filter {
         position: absolute;
         top: 0;
