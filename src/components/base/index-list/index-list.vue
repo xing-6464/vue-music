@@ -1,59 +1,60 @@
 <template>
-<scroll
-  class="index-list"
-  :probe-type="3"
-  @scroll="onScroll"
-  ref="scrollRef"
->
-  <ul ref="groupRef">
-    <li
-      v-for="group in data"
-      :key="group.title"
-      class="group"
-    >
-      <h2 class="title">{{group.title}}</h2>
-      <ul>
-        <li
-          v-for="item in group.list"
-          :key="item.id"
-          class="item"
-        >
-          <img class="avatar" v-lazy="item.pic">
-          <span class="name">{{item.name}}</span>
-        </li>
-      </ul>
-    </li>
-  </ul>
-  <div
-    class="fixed"
-    v-show="fixedTitle"
-    :style="fixedStyle"
+  <scroll
+    class="index-list"
+    :probe-type="3"
+    @scroll="onScroll"
+    ref="scrollRef"
   >
-    <div class="fixed-title">{{ fixedTitle }}</div>
-  </div>
-  <div
-    class="shortcut"
-    @touchstart.stop.prevent="onShortcutTouchStart"
-    @touchmove.stop.prevent="onShotcutTouchMove"
-    @touchend.stop.prevent
-  >
-    <ul>
+    <ul ref="groupRef">
       <li
-        v-for="(item, index) in shortcutList"
-        :key="item"
-        class="item"
-        :data-index="index"
-        :class="{ 'current': currentIndex === index }"
+        v-for="group in data"
+        :key="group.title"
+        class="group"
       >
-        {{item}}
+        <h2 class="title">{{group.title}}</h2>
+        <ul>
+          <li
+            v-for="item in group.list"
+            :key="item.id"
+            class="item"
+            @click="onItemClick(item)"
+          >
+            <img class="avatar" v-lazy="item.pic">
+            <span class="name">{{item.name}}</span>
+          </li>
+        </ul>
       </li>
     </ul>
-  </div>
-</scroll>
+    <div
+      class="fixed"
+      v-show="fixedTitle"
+      :style="fixedStyle"
+    >
+      <div class="fixed-title">{{ fixedTitle }}</div>
+    </div>
+    <div
+      class="shortcut"
+      @touchstart.stop.prevent="onShortcutTouchStart"
+      @touchmove.stop.prevent="onShotcutTouchMove"
+      @touchend.stop.prevent
+    >
+      <ul>
+        <li
+          v-for="(item, index) in shortcutList"
+          :key="item"
+          class="item"
+          :data-index="index"
+          :class="{ 'current': currentIndex === index }"
+        >
+          {{item}}
+        </li>
+      </ul>
+    </div>
+  </scroll>
 </template>
 
 <script setup>
-import { defineProps } from 'vue'
+import { defineProps, defineEmits } from 'vue'
 
 import scroll from '@/components/base/scroll/scroll.vue'
 import useFixed from './use-fixed'
@@ -67,6 +68,7 @@ const props = defineProps({
     }
   }
 })
+const emits = defineEmits(['select'])
 
 const {
   groupRef,
@@ -82,6 +84,10 @@ const {
   scrollRef,
   onShotcutTouchMove
 } = useShortcut(props, groupRef)
+
+function onItemClick (item) {
+  emits('select', item)
+}
 
 </script>
 
