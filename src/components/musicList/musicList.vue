@@ -21,6 +21,7 @@
       class="list"
       :style="scrollStyle"
       v-loading="loading"
+      v-no-result:[noResultText]="noResult"
       :probe-type="3"
       @scroll="onScroll"
     >
@@ -54,7 +55,13 @@ export default {
     },
     title: String,
     pic: String,
-    loading: Boolean
+    loading: Boolean,
+    noResultText: {
+      type: String,
+      default () {
+        return '抱歉, 没有找到部分的歌曲'
+      }
+    }
   },
   data () {
     return {
@@ -109,6 +116,9 @@ export default {
       return {
         top: `${this.imageHeight}px`
       }
+    },
+    noResult () {
+      return !this.loading && !this.songs.length
     }
   },
   methods: {
