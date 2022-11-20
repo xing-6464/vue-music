@@ -23,13 +23,13 @@
             <i class="icon-sequence"></i>
           </div>
           <div class="icon i-left">
-            <i class="icon-prev"></i>
+            <i class="icon-prev" @click="prev"></i>
           </div>
-          <div @click="togglePlay" class="icon i-center">
-            <i :class="playIcon"></i>
+          <div class="icon i-center">
+            <i :class="playIcon" @click="togglePlay"></i>
           </div>
           <div class="icon i-right">
-            <i class="icon-next"></i>
+            <i class="icon-next" @click="next"></i>
           </div>
           <div class="icon i-right">
             <i class="icon-not-favorite"></i>
@@ -55,6 +55,8 @@ const store = useStore()
 const fullScreen = computed(() => store.state.fullScreen)
 const currentSong = computed(() => store.getters.currentSong)
 const playing = computed(() => store.state.playing)
+const currentIndex = computed(() => store.state.currentIndex)
+const playlist = computed(() => store.state.playlist)
 
 const playIcon = computed(() => {
   return playing.value ? 'icon-pause' : 'icon-play'
@@ -78,12 +80,60 @@ const goBack = () => {
   store.commit('setFullScreen', false)
 }
 
+const pause = () => {
+  store.commit('setPlayingState', false)
+}
+
 const togglePlay = () => {
   store.commit('setPlayingState', !playing.value)
 }
 
-const pause = () => {
-  store.commit('setPlayingState', false)
+const prev = () => {
+  const list = playlist.value
+
+  if (!list.length) {
+    return
+  }
+
+  if (list.length === 1) {
+    loop()
+  } else {
+    let index = currentIndex.value - 1
+    if (index === -1) {
+      index = list.length - 1
+    }
+    store.commit('setCurrentIndex', index)
+    if (!playing.value) {
+      store.commit('setPlayingState', true)
+    }
+  }
+}
+
+const next = () => {
+  const list = playlist.value
+
+  if (!list.length) {
+    return
+  }
+
+  if (list.length === 1) {
+    loop()
+  } else {
+    let index = currentIndex.value + 1
+    if (index === list.length) {
+      index = 0
+    }
+    store.commit('setCurrentIndex', index)
+    if (!playing.value) {
+      store.commit('setPlayingState', true)
+    }
+  }
+}
+
+const loop = () => {
+  const audioEl = audioRef.value
+  audioEl.currentTime = 0
+  audioEl.play()
 }
 
 </script>
