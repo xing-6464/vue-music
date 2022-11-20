@@ -10,9 +10,8 @@
       <div class="top">
         <div
           class="back"
-          @click="goBack"
         >
-          <i class="icon-back"></i>
+          <i class="icon-back" @click="goBack"></i>
         </div>
         <h1 class="title">{{currentSong.name}}</h1>
         <h2 class="subtitle">{{currentSong.singer}}</h2>
@@ -22,13 +21,13 @@
           <div class="icon i-left">
             <i class="icon-sequence"></i>
           </div>
-          <div class="icon i-left">
+          <div class="icon i-left" :class="disableCls">
             <i class="icon-prev" @click="prev"></i>
           </div>
-          <div class="icon i-center">
+          <div class="icon i-center" :class="disableCls">
             <i :class="playIcon" @click="togglePlay"></i>
           </div>
-          <div class="icon i-right">
+          <div class="icon i-right" :class="disableCls">
             <i class="icon-next" @click="next"></i>
           </div>
           <div class="icon i-right">
@@ -40,6 +39,8 @@
     <audio
       ref="audioRef"
       @pause="pause"
+      @canplay="ready"
+      @error="error"
     ></audio>
   </div>
 </template>
@@ -49,6 +50,7 @@ import { ref, computed, watch } from 'vue'
 import { useStore } from 'vuex'
 
 const audioRef = ref(null)
+const songReady = ref(false)
 
 const store = useStore()
 
@@ -62,16 +64,24 @@ const playIcon = computed(() => {
   return playing.value ? 'icon-pause' : 'icon-play'
 })
 
+const disableCls = computed(() => {
+  return songReady.value ? '' : 'disable'
+})
+
 watch(currentSong, newSong => {
   if (!newSong.id || !newSong.url) {
     return
   }
+  songReady.value = false
   const audioEl = audioRef.value
   audioEl.src = newSong.url
   audioEl.play()
 })
 
 watch(playing, (newPlaying) => {
+  if (!songReady.value) {
+    return
+  }
   const audioEl = audioRef.value
   newPlaying ? audioEl.play() : audioEl.pause()
 })
@@ -85,13 +95,16 @@ const pause = () => {
 }
 
 const togglePlay = () => {
+  if (!songReady.value) {
+    return
+  }
   store.commit('setPlayingState', !playing.value)
 }
 
 const prev = () => {
   const list = playlist.value
 
-  if (!list.length) {
+  if (!songReady.value || !list.length) {
     return
   }
 
@@ -112,7 +125,7 @@ const prev = () => {
 const next = () => {
   const list = playlist.value
 
-  if (!list.length) {
+  if (!songReady.value || !list.length) {
     return
   }
 
@@ -134,6 +147,17 @@ const loop = () => {
   const audioEl = audioRef.value
   audioEl.currentTime = 0
   audioEl.play()
+}
+
+const ready = () => {
+  if (songReady.value) {
+    return
+  }
+  songReady.value = true
+}
+
+const error = () => {
+  songReady.value = true
 }
 
 </script>
