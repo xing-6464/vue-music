@@ -32,6 +32,23 @@
             </div>
           </div>
         </div>
+        <Scroll
+          class="middle-r"
+          ref="lyricScrollRef"
+        >
+          <div class="lyric-wrapper">
+            <div v-if="currentLyric" ref="lyricListRef">
+              <p
+                class="text"
+                :class="{ 'current' : currentLineNum === index }"
+                v-for="(line, index) in currentLyric.lines"
+                :key="line.num"
+              >
+                {{line.txt}}
+              </p>
+            </div>
+          </div>
+        </Scroll>
       </div>
       <div class="bottom">
         <div class="progress-wrapper">
@@ -78,6 +95,7 @@
 <script setup>
 import { ref, computed, watch } from 'vue'
 import { useStore } from 'vuex'
+import Scroll from '@/components/base/scroll/scroll.vue'
 import ProgressBar from './progress-bar.vue'
 import { formatTime } from '@/assets/js/util'
 import { PLAY_MODE } from '@/assets/js/constant'
@@ -105,7 +123,14 @@ const playMode = computed(() => store.state.playMode)
 const { modeIcon, changeMode } = useMode()
 const { getFavoriteIcon, toggleFavorite } = useFavorite()
 const { cdCls, cdRef, cdImageRef } = useCd()
-useLyric()
+const {
+  lyricListRef,
+  lyricScrollRef,
+  currentLyric,
+  currentLineNum,
+  playLyric,
+  stopLyric
+} = useLyric({ songReady, currentTime })
 
 // computed
 const playIcon = computed(() => {
@@ -137,26 +162,32 @@ watch(playing, (newPlaying) => {
     return
   }
   const audioEl = audioRef.value
-  newPlaying ? audioEl.play() : audioEl.pause()
+  if (newPlaying) {
+    audioEl.play()
+    playLyric()
+  } else {
+    audioEl.pause()
+    stopLyric()
+  }
 })
 
 // method
-const goBack = () => {
+function goBack () {
   store.commit('setFullScreen', false)
 }
 
-const pause = () => {
+function pause () {
   store.commit('setPlayingState', false)
 }
 
-const togglePlay = () => {
+function togglePlay () {
   if (!songReady.value) {
     return
   }
   store.commit('setPlayingState', !playing.value)
 }
 
-const prev = () => {
+function prev () {
   const list = playlist.value
 
   if (!songReady.value || !list.length) {
@@ -177,7 +208,7 @@ const prev = () => {
   }
 }
 
-const next = () => {
+function next () {
   const list = playlist.value
 
   if (!songReady.value || !list.length) {
@@ -198,25 +229,26 @@ const next = () => {
   }
 }
 
-const loop = () => {
+function loop () {
   const audioEl = audioRef.value
   audioEl.currentTime = 0
   audioEl.play()
   store.commit('setPlayingState', true)
 }
 
-const ready = () => {
+function ready () {
   if (songReady.value) {
     return
   }
   songReady.value = true
+  playLyric()
 }
 
-const error = () => {
+function error () {
   songReady.value = true
 }
 
-const end = () => {
+function end () {
   currentTime.value = 0
   if (playMode.value === PLAY_MODE.loop) {
     loop()
@@ -225,23 +257,26 @@ const end = () => {
   }
 }
 
-const updateTime = (e) => {
+function updateTime (e) {
   if (!progressChanging) {
     currentTime.value = e.target.currentTime
   }
 }
 
 // progress-bar.vue Emits
-const onProgressChanging = (progress) => {
+function onProgressChanging (progress) {
   progressChanging = true
   currentTime.value = currentSong.value.duration * progress
+  playLyric()
+  stopLyric()
 }
-const onProgressChanged = (progress) => {
+function onProgressChanged (progress) {
   progressChanging = false
   audioRef.value.currentTime = currentTime.value = currentSong.value.duration * progress
   if (!playing.value) {
     store.commit('setPlayingState', true)
   }
+  playLyric()
 }
 
 </script>
@@ -311,7 +346,7 @@ const onProgressChanged = (progress) => {
       white-space: nowrap;
       font-size: 0;
       .middle-l {
-        display: inline-block;
+        display: none;
         vertical-align: top;
         position: relative;
         width: 100%;
