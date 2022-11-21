@@ -19,7 +19,7 @@
       <div class="bottom">
         <div class="operators">
           <div class="icon i-left">
-            <i class="icon-sequence"></i>
+            <i @click="changeMode" :class="modeIcon" ></i>
           </div>
           <div class="icon i-left" :class="disableCls">
             <i class="icon-prev" @click="prev"></i>
@@ -48,18 +48,24 @@
 <script setup>
 import { ref, computed, watch } from 'vue'
 import { useStore } from 'vuex'
+import useMode from './use-mode'
 
+// data
 const audioRef = ref(null)
 const songReady = ref(false)
 
+// vuex
 const store = useStore()
-
 const fullScreen = computed(() => store.state.fullScreen)
 const currentSong = computed(() => store.getters.currentSong)
 const playing = computed(() => store.state.playing)
 const currentIndex = computed(() => store.state.currentIndex)
 const playlist = computed(() => store.state.playlist)
 
+// hooks
+const { modeIcon, changeMode } = useMode()
+
+// computed
 const playIcon = computed(() => {
   return playing.value ? 'icon-pause' : 'icon-play'
 })
@@ -68,6 +74,7 @@ const disableCls = computed(() => {
   return songReady.value ? '' : 'disable'
 })
 
+// watch
 watch(currentSong, newSong => {
   if (!newSong.id || !newSong.url) {
     return
@@ -86,6 +93,7 @@ watch(playing, (newPlaying) => {
   newPlaying ? audioEl.play() : audioEl.pause()
 })
 
+// method
 const goBack = () => {
   store.commit('setFullScreen', false)
 }
