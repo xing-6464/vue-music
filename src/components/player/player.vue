@@ -20,7 +20,11 @@
         <div class="progress-wrapper">
           <span class="time time-l">{{ formatTime(currentTime) }}</span>
           <div class="progress-bar-wrapper">
-            <ProgressBar :progress="progress"></ProgressBar>
+            <ProgressBar
+             :progress="progress"
+             @progress-changing="onProgressChanging"
+             @progress-changed="onProgressChanged"
+            ></ProgressBar>
           </div>
           <span class="time time-r">{{ formatTime(currentSong.duration) }}</span>
         </div>
@@ -49,6 +53,7 @@
       @canplay="ready"
       @error="error"
       @timeupdate="updateTime"
+      @ended="end"
     ></audio>
   </div>
 </template>
@@ -60,11 +65,13 @@ import ProgressBar from './progress-bar.vue'
 import useMode from './use-mode'
 import useFavorite from './use-favorite'
 import { formatTime } from '@/assets/js/util'
+import { PLAY_MODE } from '@/assets/js/constant'
 
 // data
 const audioRef = ref(null)
 const songReady = ref(false)
 const currentTime = ref(0)
+let progressChanging = false
 
 // vuex
 const store = useStore()
@@ -73,6 +80,7 @@ const currentSong = computed(() => store.getters.currentSong)
 const playing = computed(() => store.state.playing)
 const currentIndex = computed(() => store.state.currentIndex)
 const playlist = computed(() => store.state.playlist)
+const playMode = computed(() => store.state.playMode)
 
 // hooks
 const { modeIcon, changeMode } = useMode()
@@ -173,6 +181,7 @@ const loop = () => {
   const audioEl = audioRef.value
   audioEl.currentTime = 0
   audioEl.play()
+  store.commit('setPlayingState', true)
 }
 
 const ready = () => {
@@ -186,8 +195,32 @@ const error = () => {
   songReady.value = true
 }
 
+const end = () => {
+  currentTime.value = 0
+  if (playMode.value === PLAY_MODE.loop) {
+    loop()
+  } else {
+    next()
+  }
+}
+
 const updateTime = (e) => {
-  currentTime.value = e.target.currentTime
+  if (!progressChanging) {
+    currentTime.value = e.target.currentTime
+  }
+}
+
+// progress-bar.vue Emits
+const onProgressChanging = (progress) => {
+  progressChanging = true
+  currentTime.value = currentSong.value.duration * progress
+}
+const onProgressChanged = (progress) => {
+  progressChanging = false
+  audioRef.value.currentTime = currentTime.value = currentSong.value.duration * progress
+  if (!playing.value) {
+    store.commit('setPlayingState', true)
+  }
 }
 
 </script>
