@@ -17,6 +17,13 @@
         <h2 class="subtitle">{{currentSong.singer}}</h2>
       </div>
       <div class="bottom">
+        <div class="progress-wrapper">
+          <span class="time time-l">{{ formatTime(currentTime) }}</span>
+          <div class="progress-bar-wrapper">
+            <ProgressBar :progress="progress"></ProgressBar>
+          </div>
+          <span class="time time-r">{{ formatTime(currentSong.duration) }}</span>
+        </div>
         <div class="operators">
           <div class="icon i-left">
             <i @click="changeMode" :class="modeIcon" ></i>
@@ -41,6 +48,7 @@
       @pause="pause"
       @canplay="ready"
       @error="error"
+      @timeupdate="updateTime"
     ></audio>
   </div>
 </template>
@@ -48,12 +56,15 @@
 <script setup>
 import { ref, computed, watch } from 'vue'
 import { useStore } from 'vuex'
+import ProgressBar from './progress-bar.vue'
 import useMode from './use-mode'
 import useFavorite from './use-favorite'
+import { formatTime } from '@/assets/js/util'
 
 // data
 const audioRef = ref(null)
 const songReady = ref(false)
+const currentTime = ref(0)
 
 // vuex
 const store = useStore()
@@ -76,11 +87,16 @@ const disableCls = computed(() => {
   return songReady.value ? '' : 'disable'
 })
 
+const progress = computed(() => {
+  return currentTime.value / currentSong.value.duration
+})
+
 // watch
 watch(currentSong, newSong => {
   if (!newSong.id || !newSong.url) {
     return
   }
+  currentTime.value = 0
   songReady.value = false
   const audioEl = audioRef.value
   audioEl.src = newSong.url
@@ -168,6 +184,10 @@ const ready = () => {
 
 const error = () => {
   songReady.value = true
+}
+
+const updateTime = (e) => {
+  currentTime.value = e.target.currentTime
 }
 
 </script>
