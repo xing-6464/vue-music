@@ -31,6 +31,9 @@
               >
             </div>
           </div>
+          <div class="playing-lyric-wrapper">
+            <div class="playing-lyric">{{playingLyric}}</div>
+          </div>
         </div>
         <Scroll
           class="middle-r"
@@ -46,6 +49,9 @@
               >
                 {{line.txt}}
               </p>
+            </div>
+            <div class="pure-music" v-show="pureMusicLyric">
+              <p>{{ pureMusicLyric }}</p>
             </div>
           </div>
         </Scroll>
@@ -128,6 +134,8 @@ const {
   lyricScrollRef,
   currentLyric,
   currentLineNum,
+  pureMusicLyric,
+  playingLyric,
   playLyric,
   stopLyric
 } = useLyric({ songReady, currentTime })
@@ -346,7 +354,7 @@ function onProgressChanged (progress) {
       white-space: nowrap;
       font-size: 0;
       .middle-l {
-        display: none;
+        display: inline-block;
         vertical-align: top;
         position: relative;
         width: 100%;
