@@ -23,19 +23,42 @@
         <h2 class="name">{{ currentSong.name }}</h2>
         <p class="desc">{{ currentSong.singer }}</p>
       </div>
+      <div class="control">
+        <ProgressCircle
+          :radius="32"
+          :progress="props.progress"
+        >
+          <i class="icon-mini" :class="miniPlayIcon" @click.stop="props.togglePlay"></i>
+        </ProgressCircle>
+      </div>
     </div>
   </Transition>
 </template>
 
 <script setup>
-import { computed } from 'vue'
+import { computed, defineProps } from 'vue'
 import { useStore } from 'vuex'
 import useCd from './use-cd'
+import ProgressCircle from './progress-circle.vue'
+
+// props
+const props = defineProps({
+  progress: {
+    type: Number,
+    default: 0
+  },
+  togglePlay: Function
+})
 
 // vuex
 const store = useStore()
 const fullScreen = computed(() => store.state.fullScreen)
 const currentSong = computed(() => store.getters.currentSong)
+const playing = computed(() => store.state.playing)
+
+const miniPlayIcon = computed(() => {
+  return playing.value ? 'icon-pause-mini' : 'icon-play-mini'
+})
 
 // hooks
 const { cdCls, cdImageRef, cdRef } = useCd()
