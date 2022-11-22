@@ -22,7 +22,11 @@
             ref="scrollRef"
             class="list-content"
           >
-            <ul ref="listRef">
+            <TransitionGroup
+              ref="listRef"
+              name="list"
+              tag="ul"
+            >
               <li
                 class="item"
                 v-for="song in sequenceList"
@@ -37,8 +41,11 @@
                 <span class="favorite" @click.stop="toggleFavorite(song)">
                   <i :class="getFavoriteIcon(song)"></i>
                 </span>
+                <span class="delete" @click.stop="removeSong(song)">
+                  <i class="icon-delete"></i>
+                </span>
               </li>
-            </ul>
+            </TransitionGroup>
           </Scroll>
           <div class="list-footer" @click="hide">
             <span>关闭</span>
@@ -117,9 +124,13 @@ function scrollToCurrent () {
   const index = sequenceList.value.findIndex((song) => {
     return currentSong.value.id === song.id
   })
-  const target = listRef.value.children[index]
+  const target = listRef.value.$el.children[index]
 
   scrollRef.value.scroll.scrollToElement(target, 300)
+}
+
+function removeSong (song) {
+  store.dispatch('removeSong', song)
 }
 
 // export
