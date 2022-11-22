@@ -41,7 +41,11 @@
                 <span class="favorite" @click.stop="toggleFavorite(song)">
                   <i :class="getFavoriteIcon(song)"></i>
                 </span>
-                <span class="delete" @click.stop="removeSong(song)">
+                <span
+                  class="delete"
+                  @click.stop="removeSong(song)"
+                  :class="{ 'disable': removing }"
+                >
                   <i class="icon-delete"></i>
                 </span>
               </li>
@@ -68,6 +72,7 @@ import useFavorite from './use-favorite'
 const visible = ref(false)
 const scrollRef = ref(null)
 const listRef = ref(null)
+const removing = ref(false)
 
 // vuex
 const store = useStore()
@@ -80,8 +85,8 @@ const { modeIcon, changeMode, modeText } = useMode()
 const { getFavoriteIcon, toggleFavorite } = useFavorite()
 
 // watch
-watch(currentSong, async () => {
-  if (!visible.value) {
+watch(currentSong, async (newSong) => {
+  if (!visible.value || !newSong.id) {
     return
   }
   await nextTick()
@@ -124,13 +129,23 @@ function scrollToCurrent () {
   const index = sequenceList.value.findIndex((song) => {
     return currentSong.value.id === song.id
   })
+  if (index === -1) {
+    return
+  }
   const target = listRef.value.$el.children[index]
 
   scrollRef.value.scroll.scrollToElement(target, 300)
 }
 
 function removeSong (song) {
+  if (removing.value) {
+    return
+  }
+  removing.value = true
   store.dispatch('removeSong', song)
+  setTimeout(() => {
+    removing.value = false
+  }, 300)
 }
 
 // export
