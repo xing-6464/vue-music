@@ -39,6 +39,7 @@
         <song-list
           :songs="songs"
           @select="selectItem"
+          :rank="rank"
         ></song-list>
       </div>
     </scroll>
@@ -74,6 +75,10 @@ export default {
       default () {
         return '抱歉, 没有找到部分的歌曲'
       }
+    },
+    rank: {
+      type: Boolean,
+      default: false
     }
   },
   data () {
