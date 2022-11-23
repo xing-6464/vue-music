@@ -1,5 +1,5 @@
 <template>
-  <scroll
+  <Scroll
     class="index-list"
     :probe-type="3"
     @scroll="onScroll"
@@ -50,13 +50,14 @@
         </li>
       </ul>
     </div>
-  </scroll>
+  </Scroll>
 </template>
 
 <script setup>
 import { defineProps, defineEmits } from 'vue'
 
-import scroll from '@/components/base/scroll/scroll.vue'
+import Scroll from '@/components/wrap-scroll/index'
+// import scroll from '@/components/base/scroll/scroll.vue'
 import useFixed from './use-fixed'
 import useShortcut from './use-shortcut'
 

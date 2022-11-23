@@ -38,7 +38,8 @@
 import { defineComponent } from 'vue'
 import { getRecommend } from '@/service/recommend'
 import Slider from '@/components/base/slider/slider.vue'
-import Scroll from '@/components/base/scroll/scroll.vue'
+import Scroll from '@/components/wrap-scroll/index'
+// import Scroll from '@/components/base/scroll/scroll.vue'
 
 export default defineComponent({
   name: 'recommend',
