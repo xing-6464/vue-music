@@ -40,7 +40,7 @@ export default function useLyric ({ songReady, currentTime }) {
         playLyric()
       }
     } else {
-      playingLyric.value = pureMusicLyric.value = lyric.preplace(/\[(\d{2}):(\d{2}):(\d{2})\]/g, '')
+      playingLyric.value = pureMusicLyric.value = lyric.replace(/\[(\d{2}):(\d{2}):(\d{2})\]/g, '')
     }
   })
 
