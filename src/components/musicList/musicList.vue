@@ -46,7 +46,7 @@
 </template>
 
 <script>
-import { mapActions } from 'vuex'
+import { mapActions, mapState } from 'vuex'
 import SongList from '@/components/base/song-list/song-list'
 import Scroll from '@/components/base/scroll/scroll.vue'
 
@@ -134,13 +134,18 @@ export default {
       }
     },
     scrollStyle () {
+      const bottom = this.playlist.length ? '60px' : '0'
       return {
-        top: `${this.imageHeight}px`
+        top: `${this.imageHeight}px`,
+        bottom
       }
     },
     noResult () {
       return !this.loading && !this.songs.length
-    }
+    },
+    ...mapState([
+      'playlist'
+    ])
   },
   methods: {
     goBack () {
