@@ -1,7 +1,8 @@
 <template>
   <div
     class="suggest"
-    v-loading:[loadingText]="!singer && !songs.length"
+    v-loading:[loadingText]="loading"
+    v-no-result:[noResultText]="noResult"
   >
     <ul class="suggest-list">
       <li
@@ -37,7 +38,7 @@
 </template>
 
 <script setup>
-import { defineProps, ref, watch } from 'vue'
+import { computed, defineProps, ref, watch } from 'vue'
 import { search } from '@/service/search'
 import { processSongs } from '@/service/song'
 
@@ -55,6 +56,14 @@ const songs = ref([])
 const hasMore = ref(true)
 const page = ref(1)
 const loadingText = ref('')
+const noResultText = ref('抱歉，暂无搜索结果')
+
+const loading = computed(() => {
+  return !singer.value && !songs.value.length
+})
+const noResult = computed(() => {
+  return !singer.value && !songs.value.length && !hasMore.value
+})
 
 watch(() => props.query, async (newQuery) => {
   if (!newQuery) {
