@@ -979,6 +979,13 @@
   dependencies:
     "@better-scroll/core" "^2.5.0"
 
+"@better-scroll/pull-up@^2.5.0":
+  version "2.5.0"
+  resolved "https://registry.npmmirror.com/@better-scroll/pull-up/-/pull-up-2.5.0.tgz#803c03a1f47cfaeb8d5b047283ce5c583116dad6"
+  integrity sha512-vBsAiv8nBaSDN+kYWF2IGknNmypr5J8EyT7n+jHVuo3r1MGvFOlgBmF10z9jArj0yntqyGcx7RMVdwtmxOP+Sg==
+  dependencies:
+    "@better-scroll/core" "^2.5.0"
+
 "@better-scroll/shared-utils@^2.5.0":
   version "2.5.0"
   resolved "https://registry.npmmirror.com/@better-scroll/shared-utils/-/shared-utils-2.5.0.tgz#1cb5c25b5766920516ede88ce30149be321e88c4"

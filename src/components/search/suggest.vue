@@ -1,5 +1,6 @@
 <template>
   <div
+    ref="rootRef"
     class="suggest"
     v-loading:[loadingText]="loading"
     v-no-result:[noResultText]="noResult"
@@ -32,6 +33,7 @@
       </li>
       <div
         class="suggest-item"
+        v-loading:[loadingText]="pullUpLoading"
       ></div>
     </ul>
   </div>
@@ -41,6 +43,7 @@
 import { computed, defineProps, ref, watch } from 'vue'
 import { search } from '@/service/search'
 import { processSongs } from '@/service/song'
+import usePullUpLoad from './use-pull-up-load'
 
 // props
 const props = defineProps({
@@ -51,6 +54,7 @@ const props = defineProps({
   }
 })
 
+// data
 const singer = ref(null)
 const songs = ref([])
 const hasMore = ref(true)
@@ -58,13 +62,20 @@ const page = ref(1)
 const loadingText = ref('')
 const noResultText = ref('抱歉，暂无搜索结果')
 
+const { isPullUpLoad, rootRef } = usePullUpLoad(searchMore)
+
+// computed
 const loading = computed(() => {
   return !singer.value && !songs.value.length
 })
 const noResult = computed(() => {
   return !singer.value && !songs.value.length && !hasMore.value
 })
+const pullUpLoading = computed(() => {
+  return isPullUpLoad.value && hasMore.value
+})
 
+// watch
 watch(() => props.query, async (newQuery) => {
   if (!newQuery) {
     return
@@ -72,6 +83,7 @@ watch(() => props.query, async (newQuery) => {
   await searchFirst()
 })
 
+// methods
 async function searchFirst () {
   page.value = 1
   songs.value = []
@@ -81,6 +93,16 @@ async function searchFirst () {
   const result = await search(props.query, page.value, props.showSinger)
   songs.value = await processSongs(result.songs)
   singer.value = result.singer
+  hasMore.value = result.hasMore
+}
+
+async function searchMore () {
+  if (!hasMore.value) {
+    return
+  }
+  page.value++
+  const result = await search(props.query, page.value, props.showSinger)
+  songs.value = songs.value.concat(await processSongs(result.songs))
   hasMore.value = result.hasMore
 }
 
