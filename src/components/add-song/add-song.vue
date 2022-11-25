@@ -36,6 +36,7 @@
             <Scroll
               v-if="currentIndex===1"
               class="list-scroll"
+              ref="scrollRef"
             >
               <div class="list-inner">
                 <SearchList
@@ -61,7 +62,7 @@
 </template>
 
 <script setup>
-import { ref, defineExpose, computed } from 'vue'
+import { ref, defineExpose, computed, nextTick, watch } from 'vue'
 import { useStore } from 'vuex'
 
 import SearchInput from '@/components/search/search-input.vue'
@@ -75,6 +76,7 @@ import useSearchHistory from '@/components/search/use-search-history'
 const visible = ref(false)
 const query = ref('')
 const currentIndex = ref(0)
+const scrollRef = ref(null)
 
 const store = useStore()
 const searchHistory = computed(() => store.state.searchHistory)
@@ -82,12 +84,24 @@ const playHistory = computed(() => store.state.playHistory)
 
 const { saveSearch } = useSearchHistory()
 
-function show () {
+watch(query, async () => {
+  await nextTick()
+  refreshScroll()
+})
+
+async function show () {
   visible.value = true
+
+  await nextTick()
+  refreshScroll()
 }
 
 function hide () {
   visible.value = false
+}
+
+function refreshScroll () {
+  scrollRef.value.scroll.refresh()
 }
 
 function addQuery (s) {
