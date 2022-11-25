@@ -21,6 +21,7 @@
         class="suggest-item"
         v-for="song in songs"
         :key="song.id"
+        @click="selectSong(song)"
       >
         <div class="icon">
           <i class="icon-music"></i>
@@ -40,7 +41,7 @@
 </template>
 
 <script setup>
-import { computed, defineProps, ref, watch, nextTick } from 'vue'
+import { computed, defineProps, defineEmits, ref, watch, nextTick } from 'vue'
 import { search } from '@/service/search'
 import { processSongs } from '@/service/song'
 import usePullUpLoad from './use-pull-up-load'
@@ -53,6 +54,9 @@ const props = defineProps({
     default: true
   }
 })
+
+// emits
+const emits = defineEmits(['select-song'])
 
 // data
 const singer = ref(null)
@@ -126,6 +130,10 @@ async function makeItScrollable () {
     await searchMore()
     manualLoading.value = false
   }
+}
+
+function selectSong (song) {
+  emits('select-song', song)
 }
 
 </script>

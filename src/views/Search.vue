@@ -19,19 +19,25 @@
       </div>
     </div>
     <div class="search-result" v-show="query">
-      <Suggest :query="query"></Suggest>
+      <Suggest
+        :query="query"
+        @select-song="selectSong"
+      ></Suggest>
     </div>
   </div>
 </template>
 
 <script setup>
 import { ref, watch } from 'vue'
+import { useStore } from 'vuex'
 import SearcchInput from '@/components/search/search-input.vue'
 import Suggest from '@/components/search/suggest.vue'
 import { getHotKeys } from '@/service/search'
 
 const query = ref('')
 const hotKeys = ref([])
+
+const store = useStore()
 
 watch(query, (val) => {
   console.log(val)
@@ -43,6 +49,10 @@ getHotKeys().then(result => {
 
 function addQuery (s) {
   query.value = s
+}
+
+function selectSong (song) {
+  store.dispatch('addSong', song)
 }
 
 </script>
