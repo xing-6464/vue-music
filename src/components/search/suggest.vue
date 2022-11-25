@@ -40,7 +40,7 @@
 </template>
 
 <script setup>
-import { computed, defineProps, ref, watch } from 'vue'
+import { computed, defineProps, ref, watch, nextTick } from 'vue'
 import { search } from '@/service/search'
 import { processSongs } from '@/service/song'
 import usePullUpLoad from './use-pull-up-load'
@@ -62,7 +62,7 @@ const page = ref(1)
 const loadingText = ref('')
 const noResultText = ref('抱歉，暂无搜索结果')
 
-const { isPullUpLoad, rootRef } = usePullUpLoad(searchMore)
+const { isPullUpLoad, rootRef, scroll } = usePullUpLoad(searchMore)
 
 // computed
 const loading = computed(() => {
@@ -94,6 +94,8 @@ async function searchFirst () {
   songs.value = await processSongs(result.songs)
   singer.value = result.singer
   hasMore.value = result.hasMore
+  await nextTick()
+  await makeItScrollable()
 }
 
 async function searchMore () {
@@ -104,6 +106,14 @@ async function searchMore () {
   const result = await search(props.query, page.value, props.showSinger)
   songs.value = songs.value.concat(await processSongs(result.songs))
   hasMore.value = result.hasMore
+  await nextTick()
+  await makeItScrollable()
+}
+
+async function makeItScrollable () {
+  if (scroll.value.maxScrollY >= -1) {
+    await searchMore()
+  }
 }
 
 </script>
