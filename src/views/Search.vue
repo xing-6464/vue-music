@@ -23,6 +23,8 @@
         </h1>
         <SearchList
           :searches="searchHistory"
+          @select="addQuery"
+          @delete="deleteSearch"
         ></SearchList>
       </div>
     </div>
@@ -42,7 +44,7 @@
 </template>
 
 <script setup>
-import { computed, ref, watch } from 'vue'
+import { computed, ref } from 'vue'
 import { useStore } from 'vuex'
 import { useRouter } from 'vue-router'
 import SearchInput from '@/components/search/search-input.vue'
@@ -62,11 +64,7 @@ const searchHistory = computed(() => store.state.searchHistory)
 
 const router = useRouter()
 
-const { saveSearch } = useSearchHistory()
-
-watch(query, (val) => {
-  console.log(val)
-})
+const { saveSearch, deleteSearch } = useSearchHistory()
 
 getHotKeys().then(result => {
   hotKeys.value = result.hotKeys
