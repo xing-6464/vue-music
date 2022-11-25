@@ -9,6 +9,7 @@
       <li
         class="suggest-item"
         v-if="singer"
+        @click="selectSinger(singer)"
       >
         <div class="icon">
           <i class="icon-mine"></i>
@@ -56,7 +57,7 @@ const props = defineProps({
 })
 
 // emits
-const emits = defineEmits(['select-song'])
+const emits = defineEmits(['select-song', 'select-singer'])
 
 // data
 const singer = ref(null)
@@ -134,6 +135,10 @@ async function makeItScrollable () {
 
 function selectSong (song) {
   emits('select-song', song)
+}
+
+function selectSinger (singer) {
+  emits('select-singer', singer)
 }
 
 </script>
