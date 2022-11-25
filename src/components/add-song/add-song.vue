@@ -28,6 +28,7 @@
               <div class="list-inner">
                 <SongList
                   :songs="playHistory"
+                  @select="selectSongBySongList"
                 >
                 </SongList>
               </div>
@@ -37,10 +38,11 @@
               class="list-scroll"
             >
               <div class="list-inner">
-                <SongList
+                <SearchList
                   :searches="searchHistory"
                   :showDelete="false"
-                ></SongList>
+                  @select="addQuery"
+                ></SearchList>
               </div>
             </Scroll>
           </div>
@@ -49,6 +51,7 @@
           <Suggest
             :query="query"
             :show-singer="false"
+            @select-song="selectSongBySuggest"
           >
           </Suggest>
         </div>
@@ -65,7 +68,9 @@ import SearchInput from '@/components/search/search-input.vue'
 import Suggest from '@/components/search/suggest.vue'
 import Switches from '@/components/base/switches/switches.vue'
 import SongList from '@/components/base/song-list/song-list.vue'
+import SearchList from '@/components/base/search-list/search-list.vue'
 import Scroll from '@/components/base/scroll/scroll.vue'
+import useSearchHistory from '@/components/search/use-search-history'
 
 const visible = ref(false)
 const query = ref('')
@@ -75,12 +80,31 @@ const store = useStore()
 const searchHistory = computed(() => store.state.searchHistory)
 const playHistory = computed(() => store.state.playHistory)
 
+const { saveSearch } = useSearchHistory()
+
 function show () {
   visible.value = true
 }
 
 function hide () {
   visible.value = false
+}
+
+function addQuery (s) {
+  query.value = s
+}
+
+function selectSongBySongList ({ song }) {
+  addSong(song)
+}
+
+function selectSongBySuggest (song) {
+  addSong(song)
+  saveSearch(query.value)
+}
+
+function addSong (song) {
+  store.dispatch('addSong', song)
 }
 
 defineExpose({
