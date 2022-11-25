@@ -56,6 +56,12 @@
           >
           </Suggest>
         </div>
+        <Message ref="messageRef">
+          <div class="message-title">
+            <i class="icon-ok"></i>
+            <span class="text">1首歌曲已经添加到播放列表</span>
+          </div>
+        </Message>
       </div>
     </transition>
   </teleport>
@@ -71,12 +77,14 @@ import Switches from '@/components/base/switches/switches.vue'
 import SongList from '@/components/base/song-list/song-list.vue'
 import SearchList from '@/components/base/search-list/search-list.vue'
 import Scroll from '@/components/base/scroll/scroll.vue'
+import Message from '@/components/base/message/message.vue'
 import useSearchHistory from '@/components/search/use-search-history'
 
 const visible = ref(false)
 const query = ref('')
 const currentIndex = ref(0)
 const scrollRef = ref(null)
+const messageRef = ref(null)
 
 const store = useStore()
 const searchHistory = computed(() => store.state.searchHistory)
@@ -119,6 +127,11 @@ function selectSongBySuggest (song) {
 
 function addSong (song) {
   store.dispatch('addSong', song)
+  showMessage()
+}
+
+function showMessage () {
+  messageRef.value.show()
 }
 
 defineExpose({
