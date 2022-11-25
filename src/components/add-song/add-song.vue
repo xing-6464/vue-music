@@ -14,6 +14,37 @@
             placeholder="搜索歌曲"
           ></SearchInput>
         </div>
+        <div v-show="!query">
+          <switches
+            :items="['最近播放', '搜索历史']"
+            v-model="currentIndex"
+          ></switches>
+          <div class="list-wrapper">
+            <Scroll
+              v-if="currentIndex===0"
+              class="list-scroll"
+              ref="scrollRef"
+            >
+              <div class="list-inner">
+                <SongList
+                  :songs="playHistory"
+                >
+                </SongList>
+              </div>
+            </Scroll>
+            <Scroll
+              v-if="currentIndex===1"
+              class="list-scroll"
+            >
+              <div class="list-inner">
+                <SongList
+                  :searches="searchHistory"
+                  :showDelete="false"
+                ></SongList>
+              </div>
+            </Scroll>
+          </div>
+        </div>
         <div class="search-result" v-show="query">
           <Suggest
             :query="query"
@@ -27,12 +58,22 @@
 </template>
 
 <script setup>
-import { ref, defineExpose } from 'vue'
+import { ref, defineExpose, computed } from 'vue'
+import { useStore } from 'vuex'
+
 import SearchInput from '@/components/search/search-input.vue'
 import Suggest from '@/components/search/suggest.vue'
+import Switches from '@/components/base/switches/switches.vue'
+import SongList from '@/components/base/song-list/song-list.vue'
+import Scroll from '@/components/base/scroll/scroll.vue'
 
 const visible = ref(false)
 const query = ref('')
+const currentIndex = ref(0)
+
+const store = useStore()
+const searchHistory = computed(() => store.state.searchHistory)
+const playHistory = computed(() => store.state.playHistory)
 
 function show () {
   visible.value = true
